@@ -1,0 +1,165 @@
+# ============================================================
+# 电商多Agent系统 — Agent 配置文件
+# 基于 MCP 协议 + Orchestrator 架构
+# ============================================================
+
+# -----------------------------------------------------------
+# Agent 定义
+# -----------------------------------------------------------
+agents:
+
+  # 1. 店长 Agent — 总指挥
+  manager:
+    name: "店长"
+    icon: "👔"
+    role: "总协调、任务分配、决策指挥"
+    description: "作为整个系统的指挥中心，接收商家指令，分解任务，调度各专精Agent，监控进度，汇总结果"
+    model: "deepseek-v3"
+    temperature: 0.7
+    max_tokens: 4096
+    capabilities:
+      - intent_understanding    # 意图理解
+      - task_decomposition      # 任务分解
+      - agent_orchestration     # Agent 调度
+      - progress_monitoring     # 进度监控
+      - exception_handling      # 异常处理
+      - result_aggregation      # 结果汇总
+
+  # 2. 美工 Agent — 视觉设计
+  designer:
+    name: "美工"
+    icon: "🎨"
+    role: "商品图、Banner、详情页设计"
+    description: "AI 驱动的视觉设计师，负责商品主图、场景图、Banner、详情页等所有视觉物料的生成和优化"
+    model: "deepseek-v3"
+    image_model: "tongyi-wanxiang"   # 多模态图片生成模型
+    temperature: 0.8
+    max_tokens: 4096
+    image_size: "1024x1024"
+    capabilities:
+      - image_generation        # AI 绘图
+      - image_editing           # 图片精修
+      - banner_design           # Banner 设计
+      - layout_design           # 详情页布局
+      - multi_size_export       # 多尺寸输出
+
+  # 3. 文案 Agent — 内容创作
+  copywriter:
+    name: "文案"
+    icon: "✍️"
+    role: "商品文案、推广文案、标题优化"
+    description: "电商内容创作专家，负责商品标题、详情页文案、卖点提炼、SEO 优化和广告文案"
+    model: "deepseek-v3"
+    temperature: 0.8
+    max_tokens: 4096
+    capabilities:
+      - title_writing           # 标题创作
+      - detail_copywriting      # 详情页文案
+      - selling_point_extraction # 卖点提炼
+      - seo_optimization        # SEO 优化
+      - ad_copywriting          # 广告文案
+      - brand_tone_management   # 品牌语调管理
+
+  # 4. 运营 Agent — 数据分析与策略
+  operator:
+    name: "运营"
+    icon: "📊"
+    role: "数据分析、策略制定、增长优化"
+    description: "电商运营大脑，负责销售数据分析、竞品监控、定价策略、活动策划和投放优化"
+    model: "deepseek-v3"
+    temperature: 0.5
+    max_tokens: 4096
+    capabilities:
+      - data_analysis           # 数据分析
+      - competitor_monitoring   # 竞品监控
+      - pricing_strategy        # 定价策略
+      - campaign_planning       # 活动策划
+      - ad_optimization         # 投放优化
+      - report_generation       # 报表生成
+
+  # 5. 客服 Agent — 客户服务
+  service:
+    name: "客服"
+    icon: "💬"
+    role: "自动回复、问题解答、售后处理"
+    description: "7×24 小时智能客服，负责处理客户咨询、商品问答、物流查询、退换货引导和工单创建"
+    model: "deepseek-v3"
+    temperature: 0.7
+    max_tokens: 2048
+    rag_enabled: true             # 启用 RAG 知识库检索
+    confidence_threshold: 0.7     # 置信度阈值（< 0.7 转人工）
+    capabilities:
+      - intent_recognition       # 意图识别
+      - rag_retrieval            # RAG 检索
+      - emotion_analysis         # 情绪分析
+      - auto_reply               # 自动回复
+      - work_order_creation      # 工单创建
+      - multi_platform_support   # 多平台支持
+
+  # 6. 财务 Agent — 账务与报表
+  finance:
+    name: "财务"
+    icon: "💰"
+    role: "收支记录、利润计算、财务报表"
+    description: "电商财务管理专家，负责多平台账单自动获取、对账、利润计算和财务报表生成"
+    model: "deepseek-v3"
+    temperature: 0.3              # 财务场景需要低随机性
+    max_tokens: 4096
+    capabilities:
+      - bill_reconciliation     # 账单对账
+      - profit_calculation      # 利润计算
+      - report_generation       # 报表生成
+      - tax_calculation         # 税务计算
+      - anomaly_detection       # 异常检测
+
+  # 7. 仓储 Agent — 库存与物流
+  warehouse:
+    name: "仓储"
+    icon: "📦"
+    role: "库存管理、补货提醒、发货协调"
+    description: "多渠道库存管理和物流协调专家，负责实时库存监控、补货建议、超卖预警和发货追踪"
+    model: "deepseek-v3"
+    temperature: 0.4
+    max_tokens: 2048
+    capabilities:
+      - inventory_monitoring    # 库存监控
+      - restock_suggestion      # 补货建议
+      - oversell_warning        # 超卖预警
+      - shipment_tracking       # 发货追踪
+      - multi_warehouse_sync    # 多仓同步
+
+# -----------------------------------------------------------
+# 默认 Agent 参数
+# -----------------------------------------------------------
+defaults:
+  model: "deepseek-v3"
+  temperature: 0.7
+  max_tokens: 2048
+  retry_times: 3
+  retry_delay_ms: 5000
+  timeout_ms: 30000
+
+# -----------------------------------------------------------
+# 安全配置
+# -----------------------------------------------------------
+security:
+  risk_levels:
+    low:       # 查询类：自动执行
+      - query_order
+      - query_logistics
+      - query_product
+      - query_inventory
+    medium:    # 创建类：需要二次确认
+      - create_workorder
+      - generate_content
+      - send_message
+    high:      # 修改/操作类：需要人工审批
+      - update_price
+      - initiate_refund
+      - publish_product
+      - sync_inventory
+
+  meltdown:
+    max_tokens_per_session: 50000
+    max_actions_per_turn: 10
+    risk_score_threshold: 8    # 风险分 ≥ 8 时强制挂起

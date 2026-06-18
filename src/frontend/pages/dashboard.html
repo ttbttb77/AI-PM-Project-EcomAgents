@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EcomAgents — 主控台</title>
+<style>
+  :root{--bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1)}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg-root);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .sidebar{width:220px;min-width:220px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:10}
+  .side-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .side-logo .mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+  .side-logo span{font-family:Georgia,serif;font-size:18px;font-weight:700;letter-spacing:-.3px;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:14px;text-decoration:none}
+  .nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}.nav-item.active{background:var(--accent);color:#fff;box-shadow:0 0 12px var(--accent-glow)}
+  .nav-item .badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px}
+  .spacer{flex:1}.side-user{margin:0 12px;padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .side-user .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{height:48px;min-height:48px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:12px;color:var(--text-muted)}
+  .topbar .time{font-family:'Cascadia Code',monospace;color:var(--text-secondary)}
+  .content{flex:1;overflow-y:auto;padding:20px 24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;align-content:start}
+  .content::-webkit-scrollbar{width:6px}.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .panel{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;display:flex;flex-direction:column}
+  .panel-hd{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px}
+  .panel-bd{padding:14px 18px;flex:1;overflow-y:auto}
+  .panel-bd::-webkit-scrollbar{width:4px}.panel-bd::-webkit-scrollbar-thumb{background:var(--border)}
+
+  .agent-list{display:flex;flex-direction:column;gap:6px}
+  .agent-card{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg-surface);border-radius:var(--radius-sm);border:1px solid transparent;transition:var(--transition);cursor:pointer;position:relative}
+  .agent-card:hover{border-color:var(--border);background:var(--bg-hover)}
+  .agent-card .icon{width:38px;height:38px;min-width:38px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:20px;background:var(--bg-root)}
+  .agent-card .info{flex:1;min-width:0}
+  .agent-card .name{font-size:13px;font-weight:600}.agent-card .task{font-size:11px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .s-dot{width:8px;height:8px;border-radius:50%;position:absolute;top:14px;right:14px}
+  .s-dot.on{background:var(--green);box-shadow:0 0 8px rgba(34,197,94,.4)}
+  .s-dot.busy{background:var(--amber);box-shadow:0 0 8px rgba(245,158,11,.4);animation:pulse 1.5s infinite}
+  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.6)}}
+
+  .wf-card{background:var(--bg-surface);border-radius:var(--radius-sm);padding:14px;margin-bottom:12px}
+  .wf-title{font-size:14px;font-weight:700;margin-bottom:4px}.wf-sub{font-size:11px;color:var(--text-muted);margin-bottom:12px}
+  .stepper{display:flex;gap:4px;margin-bottom:8px}.step-bar{flex:1;height:3px;border-radius:2px;background:var(--border);transition:var(--transition)}
+  .step-bar.done{background:var(--green);box-shadow:0 0 4px rgba(34,197,94,.4)}
+  .step-bar.active{background:var(--amber);box-shadow:0 0 4px rgba(245,158,11,.4);animation:glow-step 1s infinite}
+  @keyframes glow-step{0%,100%{opacity:1}50%{opacity:.4}}
+  .step-lbs{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)}
+  .step-lbs span.done{color:var(--green)}.step-lbs span.active{color:var(--amber);font-weight:600}
+
+  .log-stream{font-family:'Cascadia Code',monospace;font-size:10px;color:var(--text-secondary);display:flex;flex-direction:column;gap:5px;max-height:140px;overflow-y:auto}
+  .log-stream .ll{display:flex;gap:8px}.log-stream .lt{color:var(--text-muted);min-width:40px}
+
+  .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  .metric{background:var(--bg-surface);border-radius:var(--radius-sm);padding:12px;text-align:center}
+  .metric .val{font-size:20px;font-weight:800;font-family:'Cascadia Code',monospace}.metric .lbl{font-size:10px;color:var(--text-muted);margin-top:2px}
+  .metric.up .val{color:var(--green)}
+
+  .mini-chart{margin-bottom:12px;background:var(--bg-surface);border-radius:var(--radius-sm);padding:10px}
+  .mini-chart .cl{font-size:10px;color:var(--text-muted);margin-bottom:4px}
+  svg{width:100%;height:50px}.line-path{fill:none;stroke:var(--accent);stroke-width:2;stroke-linecap:round}
+  .area-path{fill:url(#ag);opacity:.12}
+
+  .todo-list{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}
+  .todo{display:flex;align-items:center;gap:6px;font-size:11px;padding:8px 10px;background:var(--bg-surface);border-radius:var(--radius-sm);border-left:3px solid var(--amber)}
+  .todo.crit{border-left-color:var(--red)}
+
+  .btns{display:flex;gap:6px;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:4px;padding:7px 13px;border-radius:18px;font-size:11px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid var(--border);background:var(--bg-surface);color:var(--text-secondary);white-space:nowrap}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}
+  .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn.pri:hover{box-shadow:0 0 16px var(--accent-glow)}
+
+  .chatbar{height:52px;min-height:52px;background:var(--bg-surface);border-top:1px solid var(--border);display:flex;align-items:center;gap:8px;padding:0 24px}
+  .chatbar input{flex:1;background:var(--bg-root);border:1px solid var(--border);border-radius:22px;padding:9px 16px;color:var(--text-primary);font-size:13px;outline:none;transition:var(--transition)}
+  .chatbar input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}
+  .chatbar input::placeholder{color:var(--text-muted)}
+  .btn-icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-size:16px;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center}
+  .btn-icon:hover{border-color:var(--accent);color:var(--accent)}
+  .btn-send{width:38px;height:38px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:16px;cursor:pointer;transition:var(--transition)}
+  .btn-send:hover{box-shadow:0 0 16px var(--accent-glow);transform:scale(1.05)}
+
+  @media(max-width:1400px){.content{grid-template-columns:1fr 1fr}}@media(max-width:1000px){.content{grid-template-columns:1fr}.sidebar{width:60px;min-width:60px}.side-logo span,.nav-item span:not(.icon),.side-user .info,.badge{display:none}}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-logo"><div class="mark">EA</div><span>EcomAgents</span></div>
+  <a href="dashboard.html" class="nav-item active">🏠 主控台</a>
+  <a href="chat.html" class="nav-item">💬 对话</a>
+  <a href="workflow-detail.html" class="nav-item">⚡ 工作流</a>
+  <a href="new-product-wizard.html" class="nav-item">📦 新品上架</a>
+  <a href="agent-management.html" class="nav-item">🤖 Agent管理</a>
+  <a href="data-dashboard.html" class="nav-item">📊 数据中心</a>
+  <a href="promotion.html" class="nav-item">🎪 促销活动</a>
+  <a href="service-workbench.html" class="nav-item">💬 客服工作台</a>
+  <a href="finance-report.html" class="nav-item">💰 财务报表</a>
+  <a href="settings.html" class="nav-item">⚙️ 设置</a>
+  <div class="spacer"></div>
+  <div class="side-user"><div class="av">A</div><div><div style="font-size:13px;font-weight:600">商家 A</div><div style="color:var(--green);font-size:11px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px"></span>在线</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <span>EcomAgents / <b style="color:var(--text-primary)">主控台</b></span>
+    <span class="time" id="liveTime">--</span>
+  </div>
+
+  <div class="content">
+    <!-- COL 1: Agent 状态 -->
+    <div class="panel">
+      <div class="panel-hd">🤖 Agent 团队 <span style="font-weight:400;text-transform:none;color:var(--green)">7 个在线</span></div>
+      <div class="panel-bd">
+        <div class="agent-list">
+          <div class="agent-card"><div class="icon">👔</div><div class="info"><div class="name">店长 Manager</div><div class="task">空闲 — 等待指令</div></div><div class="s-dot on"></div></div>
+          <div class="agent-card"><div class="icon">🎨</div><div class="info"><div class="name">美工 Designer</div><div class="task">工作中 — 生成商品场景图…</div></div><div class="s-dot busy"></div></div>
+          <div class="agent-card"><div class="icon">✍️</div><div class="info"><div class="name">文案 Copywriter</div><div class="task">工作中 — 撰写详情页文案…</div></div><div class="s-dot busy"></div></div>
+          <div class="agent-card"><div class="icon">📊</div><div class="info"><div class="name">运营 Operator</div><div class="task">空闲 — 等待数据</div></div><div class="s-dot on"></div></div>
+          <div class="agent-card"><div class="icon">💬</div><div class="info"><div class="name">客服 Service</div><div class="task">在线 — 今日处理 86 条咨询</div></div><div class="s-dot on"></div></div>
+          <div class="agent-card"><div class="icon">💰</div><div class="info"><div class="name">财务 Finance</div><div class="task">空闲 — 下次报表 22:00</div></div><div class="s-dot on"></div></div>
+          <div class="agent-card"><div class="icon">📦</div><div class="info"><div class="name">仓储 Warehouse</div><div class="task">空闲 — 库存正常</div></div><div class="s-dot on"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 2: 活跃工作流 -->
+    <div class="panel">
+      <div class="panel-hd">⚡ 活跃工作流 <span style="font-weight:400;text-transform:none;color:var(--amber)">1 个进行中</span></div>
+      <div class="panel-bd">
+        <div class="wf-card">
+          <div class="wf-title">📦 新品上架：304 不锈钢保温杯</div>
+          <div class="wf-sub">发起 10:00 · 预计 10:25 · 5 个 Agent 协作</div>
+          <div class="stepper"><div class="step-bar done"></div><div class="step-bar done"></div><div class="step-bar active"></div><div class="step-bar"></div><div class="step-bar"></div><div class="step-bar"></div></div>
+          <div class="step-lbs"><span class="done">✅ 信息采集</span><span class="done">✅ 任务分解</span><span class="active">⏳ 并行处理</span><span>质审</span><span>上架</span><span>汇报</span></div>
+        </div>
+        <div class="log-stream" id="logStream">
+          <div class="ll"><span class="lt">10:00</span><span>👔 店长收到指令：上架 304 不锈钢保温杯</span></div>
+          <div class="ll"><span class="lt">10:02</span><span>👔 任务分解完成 — 分配至 5 个 Agent</span></div>
+          <div class="ll"><span class="lt">10:03</span><span>🎨 美工开始生成 5 张商品图</span></div>
+          <div class="ll"><span class="lt">10:05</span><span>✍️ 文案开始撰写标题和详情页</span></div>
+          <div class="ll"><span class="lt">10:08</span><span>✅ 🎨 美工完成 5 张商品图（800×800）</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 3: 数据 + 待办 -->
+    <div class="panel">
+      <div class="panel-hd">📈 今日数据 <span style="font-weight:400;text-transform:none;color:var(--text-muted)">6 月 17 日</span></div>
+      <div class="panel-bd">
+        <div class="metric-grid">
+          <div class="metric up"><div class="val">¥12,580</div><div class="lbl">今日销售额 ↑12%</div></div>
+          <div class="metric up"><div class="val">142</div><div class="lbl">订单数 ↑8%</div></div>
+          <div class="metric"><div class="val">¥88.6</div><div class="lbl">客单价 ↑4%</div></div>
+          <div class="metric"><div class="val">3.8%</div><div class="lbl">转化率 ↑0.2%</div></div>
+        </div>
+        <div class="mini-chart"><div class="cl">📊 近 7 天销售额趋势</div>
+          <svg viewBox="0 0 300 50"><defs><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#3b82f6" stop-opacity=".6"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></linearGradient></defs>
+          <path class="area-path" d="M0,38 L43,32 L86,36 L129,24 L171,18 L214,12 L257,16 L300,8 L300,50 L0,50 Z"/><path class="line-path" d="M0,38 L43,32 L86,36 L129,24 L171,18 L214,12 L257,16 L300,8"/></svg>
+        </div>
+        <div class="todo-list">
+          <div class="todo crit"><span>🔴</span><div><b>库存预警</b><br>保温杯礼盒仅剩 12 件，建议立即补货</div></div>
+          <div class="todo"><span>🟡</span><div><b>退款率偏高 5.2%</b><br>高于日常均值 3.5%，建议排查</div></div>
+          <div class="todo"><span>🟢</span><div><b>客服满意度 97%</b><br>86 条咨询，自动解决率 68%</div></div>
+        </div>
+        <div class="btns">
+          <a href="new-product-wizard.html" class="btn pri">📦 上架新品</a>
+          <a href="data-dashboard.html" class="btn">📋 查看日报</a>
+          <a href="promotion.html" class="btn">🎪 策划活动</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="chatbar">
+    <button class="btn-icon" title="语音">🎤</button>
+    <input type="text" id="chatInput" placeholder="与 👔 店长对话，如："我要上架一款保温杯"、"今天卖了多少？"" onkeydown="if(event.key==='Enter')sendChat()">
+    <button class="btn-send" onclick="sendChat()">➤</button>
+  </div>
+</div>
+
+<script>
+  setInterval(()=>{document.getElementById('liveTime').textContent=new Date().toLocaleDateString('zh-CN')+' '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})},1000);
+  function sendChat(){const i=document.getElementById('chatInput');const m=i.value.trim();if(!m)return;i.value='';const l=document.getElementById('logStream');const t=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});l.innerHTML+=`<div class="ll"><span class="lt">${t}</span><span>💬 商家：${m}</span></div>`;l.scrollTop=l.scrollHeight;
+    setTimeout(()=>{let r='';if(m.includes('上架')||m.includes('新品'))r='收到！正在启动新品上架工作流，请告诉我商品名称、类目、卖点和目标人群？';else if(m.includes('卖')||m.includes('数据')||m.includes('日报'))r='📊 今日速报：销售额 ¥12,580（↑12%），订单 142 单，客单价 ¥88.6。保温杯销量最好！';else if(m.includes('活动')||m.includes('促销'))r='好的！请告诉我活动目标、预算和时间范围？';else r='收到您的消息。我是店长 Agent，可以帮您上架新品、策划活动、查看数据。请问需要什么帮助？';const rt=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});l.innerHTML+=`<div class="ll"><span class="lt">${rt}</span><span>👔 店长：${r}</span></div>`;l.scrollTop=l.scrollHeight},800+Math.random()*1200);}
+  const sim=[['10:12','✍️','文案完成标题×5 + 详情页 1,200字'],['10:14','📊','运营完成竞品价格分析，建议定价 ¥89'],['10:15','📦','仓储已设置 SKU + 初始库存 500 件']];let si=0;setTimeout(function x(){if(si>=sim.length)return;const[l,e,t]=sim[si];document.getElementById('logStream').innerHTML+=`<div class="ll"><span class="lt">${l}</span><span>${e} ${t}</span></div>`;si++;if(si<sim.length)setTimeout(x,4000)},5000);
+</script>
+</body>
+</html>

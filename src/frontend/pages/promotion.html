@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EcomAgents — 促销活动</title>
+<style>
+  :root{--bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1)}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg-root);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .sidebar{width:220px;min-width:220px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:10}
+  .side-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .side-logo .mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+  .side-logo span{font-family:Georgia,serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:14px;text-decoration:none}
+  .nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}.nav-item.active{background:var(--accent);color:#fff;box-shadow:0 0 12px var(--accent-glow)}
+  .spacer{flex:1}.side-user{margin:0 12px;padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .side-user .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .main{flex:1;overflow-y:auto;padding:24px 32px}.main::-webkit-scrollbar{width:6px}.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  h1{font-size:22px;margin-bottom:20px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .card h3{font-size:15px;margin-bottom:14px}
+  .promo-card{background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:10px;cursor:pointer;transition:var(--transition)}
+  .promo-card:hover{border-color:var(--accent)}
+  .promo-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .promo-title{font-weight:700}.promo-status{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+  .promo-status.active{background:rgba(34,197,94,.1);color:var(--green)}.promo-status.draft{background:rgba(100,116,139,.1);color:var(--text-muted)}
+  .promo-status.ended{background:rgba(100,116,139,.1);color:var(--text-muted)}
+  .promo-meta{font-size:12px;color:var(--text-muted);display:flex;gap:16px}
+  .template-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .template-card{padding:16px;background:var(--bg-surface);border:1px solid var(--border);border-radius:var(--radius);cursor:pointer;transition:var(--transition);text-align:center}
+  .template-card:hover{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+  .template-card .icon{font-size:32px;margin-bottom:8px}.template-card .name{font-weight:700;font-size:14px}
+  .template-card .desc{font-size:11px;color:var(--text-muted);margin-top:4px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid var(--border);background:var(--bg-surface);color:var(--text-secondary)}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{box-shadow:0 0 20px var(--accent-glow)}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+  .form-group label{display:block;font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:4px}
+  .form-group input,.form-group select{width:100%;padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px;outline:none;font-family:inherit}
+  .form-group input:focus,.form-group select:focus{border-color:var(--accent);box-shadow:0 0 6px var(--accent-glow)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-logo"><div class="mark">EA</div><span>EcomAgents</span></div>
+  <a href="dashboard.html" class="nav-item">🏠 主控台</a>
+  <a href="chat.html" class="nav-item">💬 对话</a>
+  <a href="workflow-detail.html" class="nav-item">⚡ 工作流</a>
+  <a href="new-product-wizard.html" class="nav-item">📦 新品上架</a>
+  <a href="agent-management.html" class="nav-item">🤖 Agent管理</a>
+  <a href="data-dashboard.html" class="nav-item">📊 数据中心</a>
+  <a href="promotion.html" class="nav-item active">🎪 促销活动</a>
+  <a href="service-workbench.html" class="nav-item">💬 客服工作台</a>
+  <a href="finance-report.html" class="nav-item">💰 财务报表</a>
+  <a href="settings.html" class="nav-item">⚙️ 设置</a>
+  <div class="spacer"></div>
+  <div class="side-user"><div class="av">A</div><div><div style="font-size:13px;font-weight:600">商家 A</div><div style="color:var(--green);font-size:11px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px"></span>在线</div></div></div>
+</aside>
+
+<div class="main">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h1 style="margin-bottom:0">🎪 促销活动</h1>
+    <button class="btn primary" onclick="document.getElementById('newPromo').scrollIntoView({behavior:'smooth'})">+ 新建活动</button>
+  </div>
+
+  <div class="grid2">
+    <!-- Active promotions -->
+    <div class="card">
+      <h3>📋 活动列表</h3>
+      <div class="promo-card">
+        <div class="promo-header"><span class="promo-title">🏷️ 618年中大促</span><span class="promo-status active">● 进行中</span></div>
+        <div class="promo-meta"><span>📅 6.1 - 6.18</span><span>💰 预算 ¥5,000</span><span>📊 ROI 3.8</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">玩法：满200减30 + 指定商品8折 | 已产生 GMV ¥52,300</div>
+      </div>
+      <div class="promo-card">
+        <div class="promo-header"><span class="promo-title">🔥 保温杯新品首发</span><span class="promo-status active">● 进行中</span></div>
+        <div class="promo-meta"><span>📅 6.15 - 6.22</span><span>💰 预算 ¥1,000</span><span>📊 ROI 5.2</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text-secondary)">玩法：限时首发价 ¥89 + 赠品（杯刷）| 已售 28 件</div>
+      </div>
+      <div class="promo-card">
+        <div class="promo-header"><span class="promo-title">🎓 毕业季专场</span><span class="promo-status draft">● 草稿</span></div>
+        <div class="promo-meta"><span>📅 计划 6.25 - 7.5</span><span>💰 预算 ¥2,000</span></div>
+        <div style="margin-top:8px;font-size:12px;color:var(--text-muted)">方案制定中 — 运营 Agent 正在分析数据</div>
+      </div>
+      <div class="promo-card">
+        <div class="promo-header"><span class="promo-title">🧧 五一劳动节满减</span><span class="promo-status ended">已结束</span></div>
+        <div class="promo-meta"><span>📅 5.1 - 5.5</span><span>💰 GMV ¥28,600</span><span>📊 ROI 4.1</span></div>
+      </div>
+    </div>
+
+    <!-- New promotion form -->
+    <div class="card" id="newPromo">
+      <h3>🆕 创建新活动</h3>
+      <div style="margin-bottom:16px;font-size:13px;color:var(--text-muted)">选择活动模板或自定义配置，运营 Agent 将自动生成完整方案</div>
+
+      <div class="template-grid" style="margin-bottom:20px">
+        <div class="template-card"><div class="icon">🏷️</div><div class="name">满减促销</div><div class="desc">满 X 元减 Y 元<br>提升客单价首选</div></div>
+        <div class="template-card"><div class="icon">💥</div><div class="name">限时折扣</div><div class="desc">指定商品 Z 折<br>清库存利器</div></div>
+        <div class="template-card"><div class="icon">🎁</div><div class="name">买赠活动</div><div class="desc">买 A 送 B<br>新品推广</div></div>
+        <div class="template-card"><div class="icon">⚡</div><div class="name">限时秒杀</div><div class="desc">X 小时限时价<br>引流拉新</div></div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group"><label>活动名称</label><input type="text" placeholder="如：618年中大促" id="pn"></div>
+        <div class="form-group"><label>活动模板</label><select><option>满减促销</option><option>限时折扣</option><option>买赠活动</option><option>限时秒杀</option></select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>开始日期</label><input type="date" value="2026-06-20"></div>
+        <div class="form-group"><label>结束日期</label><input type="date" value="2026-06-27"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>活动预算 (¥)</label><input type="number" value="2000" placeholder="预算金额"></div>
+        <div class="form-group"><label>目标平台</label><select multiple style="height:80px"><option>淘宝</option><option>京东</option><option>抖音电商</option></select></div>
+      </div>
+      <button class="btn primary" onclick="alert('🚀 促销活动策划工作流已启动！\n\n运营 Agent 正在分析数据...\n美工+文案 Agent 将并行准备素材\n预计 1 天后完成方案\n\n请前往工作流页面查看进度')">🚀 启动策划工作流</button>
+    </div>
+  </div>
+</div>
+</body>
+</html>

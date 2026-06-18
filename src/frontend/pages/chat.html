@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EcomAgents — 与店长对话</title>
+<style>
+  :root{--bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1)}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg-root);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .sidebar{width:220px;min-width:220px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:10}
+  .side-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .side-logo .mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+  .side-logo span{font-family:Georgia,serif;font-size:18px;font-weight:700;letter-spacing:-.3px;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:14px;text-decoration:none}
+  .nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}.nav-item.active{background:var(--accent);color:#fff;box-shadow:0 0 12px var(--accent-glow)}
+  .spacer{flex:1}.side-user{margin:0 12px;padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .side-user .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+  .topbar{height:48px;min-height:48px;background:var(--bg-surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px}
+  .topbar .t{font-weight:600;display:flex;align-items:center;gap:8px}.topbar .t .dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.3)}
+  .topbar .tm{color:var(--text-muted);font-size:11px;font-family:'Cascadia Code',monospace}
+  .chat-area{flex:1;overflow-y:auto;padding:20px 32px;display:flex;flex-direction:column;gap:16px}
+  .chat-area::-webkit-scrollbar{width:6px}.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  .welcome{text-align:center;padding:32px 0 16px}
+  .welcome .ic{font-size:48px;margin-bottom:10px}.welcome h2{font-size:18px;margin-bottom:4px}.welcome p{color:var(--text-muted);font-size:13px;margin-bottom:16px}
+  .quick-cmds{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+  .cmd-chip{padding:8px 15px;border-radius:20px;background:var(--bg-card);border:1px solid var(--border);color:var(--text-secondary);font-size:12px;cursor:pointer;transition:var(--transition);white-space:nowrap}
+  .cmd-chip:hover{border-color:var(--accent);color:var(--accent);box-shadow:0 0 10px var(--accent-glow);transform:translateY(-1px)}
+  .msg{display:flex;gap:10px;max-width:78%;animation:fadeUp .3s}
+  .msg.user{align-self:flex-end;flex-direction:row-reverse}
+  .msg .av{width:34px;height:34px;min-width:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .msg.agent .av{background:linear-gradient(135deg,var(--accent),#6366f1)}.msg.user .av{background:linear-gradient(135deg,#8b5cf6,#a78bfa)}
+  .msg .bubble{padding:10px 15px;border-radius:14px;font-size:13px;line-height:1.6}
+  .msg.agent .bubble{background:var(--bg-card);border:1px solid var(--border);border-top-left-radius:4px}
+  .msg.user .bubble{background:var(--accent);color:#fff;border-top-right-radius:4px}
+  .msg .time{font-size:10px;color:var(--text-muted);margin-top:4px}.msg.agent .time{margin-left:44px}.msg.user .time{text-align:right;margin-right:44px}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .typing{display:flex;gap:10px;align-items:center;padding:6px 0}
+  .typing .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent),#6366f1);display:flex;align-items:center;justify-content:center;font-size:16px}
+  .typing .dots{display:flex;gap:4px}.typing .dots span{width:7px;height:7px;border-radius:50%;background:var(--text-muted);animation:bounce 1.4s infinite}
+  .typing .dots span:nth-child(2){animation-delay:.2s}.typing .dots span:nth-child(3){animation-delay:.4s}
+  @keyframes bounce{0%,80%,100%{transform:scale(0);opacity:.4}40%{transform:scale(1);opacity:1}}
+  .wf-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:4px 0}
+  .wf-card .wft{font-weight:700;font-size:13px;margin-bottom:8px}
+  .wf-steps{display:flex;gap:4px;margin-bottom:8px}.wfs{flex:1;height:3px;border-radius:2px;background:var(--border)}
+  .wfs.done{background:var(--green)}.wfs.active{background:var(--amber);animation:glow 1s infinite}
+  @keyframes glow{0%,100%{opacity:1}50%{opacity:.4}}
+  .wf-lbs{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted)}.wf-lbs span.done{color:var(--green)}.wf-lbs span.active{color:var(--amber)}
+  .input-area{padding:14px 24px;background:var(--bg-surface);border-top:1px solid var(--border)}
+  .input-row{display:flex;gap:8px;align-items:center}
+  .input-row input{flex:1;background:var(--bg-root);border:1px solid var(--border);border-radius:22px;padding:10px 16px;color:var(--text-primary);font-size:13px;outline:none;transition:var(--transition)}
+  .input-row input:focus{border-color:var(--accent);box-shadow:0 0 10px var(--accent-glow)}.input-row input::placeholder{color:var(--text-muted)}
+  .btn-icon{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:transparent;color:var(--text-secondary);font-size:16px;cursor:pointer;transition:var(--transition);display:flex;align-items:center;justify-content:center}
+  .btn-icon:hover{border-color:var(--accent);color:var(--accent)}.btn-send{width:38px;height:38px;border-radius:50%;background:var(--accent);border:none;color:#fff;font-size:16px;cursor:pointer;transition:var(--transition)}.btn-send:hover{box-shadow:0 0 16px var(--accent-glow);transform:scale(1.05)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-logo"><div class="mark">EA</div><span>EcomAgents</span></div>
+  <a href="dashboard.html" class="nav-item">🏠 主控台</a>
+  <a href="chat.html" class="nav-item active">💬 对话</a>
+  <a href="workflow-detail.html" class="nav-item">⚡ 工作流</a>
+  <a href="new-product-wizard.html" class="nav-item">📦 新品上架</a>
+  <a href="agent-management.html" class="nav-item">🤖 Agent管理</a>
+  <a href="data-dashboard.html" class="nav-item">📊 数据中心</a>
+  <a href="promotion.html" class="nav-item">🎪 促销活动</a>
+  <a href="service-workbench.html" class="nav-item">💬 客服工作台</a>
+  <a href="finance-report.html" class="nav-item">💰 财务报表</a>
+  <a href="settings.html" class="nav-item">⚙️ 设置</a>
+  <div class="spacer"></div>
+  <div class="side-user"><div class="av">A</div><div><div style="font-size:13px;font-weight:600">商家 A</div><div style="color:var(--green);font-size:11px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px"></span>在线</div></div></div>
+</aside>
+
+<div class="main">
+  <div class="topbar"><div class="t"><span class="dot"></span>👔 店长 Agent — 对话中</div><div class="tm" id="clock">--</div></div>
+  <div class="chat-area" id="chatArea">
+    <div class="welcome"><div class="ic">👔</div><h2>你好，我是店长 Agent</h2><p>我是你的电商团队总指挥。告诉我你想做什么，我来调度团队完成。</p></div>
+    <div style="text-align:center;font-size:11px;color:var(--text-muted)">💡 试试这些指令：</div>
+    <div class="quick-cmds" id="quickCmds">
+      <div class="cmd-chip" data-cmd="我要上架一款304不锈钢保温杯，面向商务人群，定价79-99元">📦 上架新品</div>
+      <div class="cmd-chip" data-cmd="帮我策划一个618促销活动，全场满200减30，预算5000元">🎪 策划618活动</div>
+      <div class="cmd-chip" data-cmd="今天销售数据怎么样？">📊 今日数据</div>
+      <div class="cmd-chip" data-cmd="生成今天的日报">📋 生成日报</div>
+      <div class="cmd-chip" data-cmd="库存还剩多少？有没有需要补货的？">📦 库存检查</div>
+      <div class="cmd-chip" data-cmd="我这个月赚了多少？帮我算算利润">💰 本月利润</div>
+    </div>
+  </div>
+  <div class="input-area"><div class="input-row">
+    <button class="btn-icon" title="语音">🎤</button>
+    <input type="text" id="msgInput" placeholder="输入指令，如：我要上架一款保温杯..." onkeydown="if(event.key==='Enter')send()">
+    <button class="btn-send" onclick="send()">➤</button>
+  </div></div>
+</div>
+
+<script>
+  setInterval(()=>{document.getElementById('clock').textContent=new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})},1000);
+  const chat=document.getElementById('chatArea'),input=document.getElementById('msgInput');
+  function ts(){return new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'})}
+  function addMsg(role,text,isHTML){const d=document.createElement('div');d.className=`msg ${role}`;d.innerHTML=`<div class="av">${role==='user'?'👨‍💼':'👔'}</div><div><div class="bubble">${isHTML?text:text.replace(/\n/g,'<br>')}</div><div class="time">${role==='user'?'商家':'店长'} · ${ts()}</div></div>`;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+  function showTyping(){const d=document.createElement('div');d.className='typing';d.id='ti';d.innerHTML='<div class="av">👔</div><div class="dots"><span></span><span></span><span></span></div>';chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+  function hideTyping(){const e=document.getElementById('ti');if(e)e.remove()}
+  function addWfCard(title,steps,cur){const d=document.createElement('div');d.innerHTML=`<div class="wf-card"><div class="wft">⚡ ${title}</div><div class="wf-steps">${steps.map((s,i)=>{let c='';if(i<cur)c='done';if(i===cur)c='active';return`<div class="wfs ${c}"></div>`}).join('')}</div><div class="wf-lbs">${steps.map((s,i)=>{let c='',p='';if(i<cur){c='done';p='✅ '}if(i===cur){c='active';p='⏳ '}return`<span class="${c}">${p}${s}</span>`}).join('')}</div></div>`;chat.appendChild(d);chat.scrollTop=chat.scrollHeight}
+  function respondTo(msg){const m=msg.toLowerCase();hideTyping();
+    if(m.includes('上架')||m.includes('新品')){const p=m.includes('保温杯')?'304不锈钢保温杯':'商品';addMsg('agent',`收到！已为您启动 <b>新品上架工作流</b> 🚀<br><br>我将协调 🎨美工、✍️文案、📊运营、📦仓储 四个 Agent 完成上架。<br><br>请确认信息：<br>• 商品：${p}<br>• 定价：¥79-99<br>• 平台：淘宝<br><br>确认无误的话，我马上开始！`,true);addWfCard('新品上架：'+p,['信息采集','任务分解','并行处理','库存设置','质审','上架','汇报'],1)}
+    else if(m.includes('618')||m.includes('促销')||m.includes('活动')){addMsg('agent',`好的！我来帮您策划 <b>618 促销活动</b> 🎪<br><br>📊 运营 Agent 正在分析：<br>• 去年 618：GMV ¥42,500，ROI 3.8<br>• 竞品策略：满200减30 + 限时秒杀<br>• 推荐方案：全店满200减30 + 指定商品8折<br><br>需要我展开详细方案吗？`,true)}
+    else if(m.includes('数据')||m.includes('卖了多少')||m.includes('今天')){addMsg('agent',`📊 <b>今日销售速报</b>（截至${ts()}）<br><br>💰 销售额：<b>¥12,580</b>（↑12% vs 昨日）<br>📦 订单：<b>142 单</b>（↑8%）<br>👤 客单价：<b>¥88.6</b>（↑4%）<br>📈 转化率：<b>3.8%</b>（↑0.2%）<br><br>🏆 TOP：304保温杯（¥3,560 / 28单）<br>⚠️ 保温杯礼盒仅剩12件，建议补货`,true)}
+    else if(m.includes('日报')){addMsg('agent',`📋 <b>日报已生成</b><br><br>✅ 销售额 ¥12,580 | 订单 142 | 利润 ¥3,420<br>✅ 客服处理 86 条咨询，自动解决率 68%<br>✅ 库存正常，1 个补货提醒<br>✅ 各 Agent 运行正常<br><br>预计今日节省人力 <b>4.3 小时</b>。完整日报已推送飞书。`,true)}
+    else if(m.includes('库存')||m.includes('补货')){addMsg('agent',`📦 <b>库存概况</b><br><br>✅ 正常：保温杯标准款 486 件 | 双肩包 234 件<br>⚠️ 低库存：<b style="color:#ef4444">保温杯礼盒装 仅剩 12 件</b>（安全阈值 50 件）<br><br>📦 仓储 Agent 建议：立即补货 100 件，预计采购 3 天。需要帮您下单吗？`,true)}
+    else if(m.includes('利润')||m.includes('赚了')||m.includes('这个月')){addMsg('agent',`💰 <b>本月财务概览</b>（6/1-6/17）<br><br>📈 营业收入：¥198,420<br>📉 退款：¥5,260（2.6%）<br>💸 推广费：¥12,800<br>🚚 物流费：¥8,540<br><br>🧮 <b>净利润：¥150,360</b>（净利率 75.8%）<br>📊 环比上月 ↑15%`,true)}
+    else{addMsg('agent',`收到您的消息 👍<br><br>我是店长 Agent，可以帮您：<br>• 📦 <b>上架新品</b> — 自动协调美工/文案/运营/仓储<br>• 🎪 <b>策划活动</b> — 数据分析 + 方案制定<br>• 📊 <b>查看数据</b> — 实时销售/客服/库存<br>• 💰 <b>财务管理</b> — 利润计算/对账<br><br>直接告诉我您想做什么就好！`,true)}
+  }
+  async function send(){const msg=input.value.trim();if(!msg)return;input.value='';addMsg('user',msg);showTyping();setTimeout(()=>respondTo(msg),800+Math.random()*1500)}
+  document.querySelectorAll('.cmd-chip').forEach(c=>{c.addEventListener('click',()=>{input.value=c.dataset.cmd;send()})});input.focus();
+</script>
+</body>
+</html>

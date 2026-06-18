@@ -1,0 +1,343 @@
+# ============================================================
+# 电商多Agent系统 — 埋点事件定义
+# 基于 PRD v1.1 + Tutorial Phase 4 融合
+# ============================================================
+
+events:
+
+  # ==========================================================
+  # 用户行为事件（商家操作）
+  # ==========================================================
+
+  - name: system_launch
+    description: 商家打开系统/进入页面
+    category: user_behavior
+    properties:
+      - name: user_id
+        type: string
+        desc: 商家ID
+      - name: entry_page
+        type: string
+        desc: 进入的页面
+        enum: [dashboard, chat, workflow_detail, data_center, settings]
+    trigger: 页面加载完成
+    qa_sql: SELECT COUNT(DISTINCT user_id) as dau FROM tracking_events WHERE event_name='system_launch' AND DATE(timestamp)=CURDATE()
+
+  - name: workflow_start
+    description: 商家发起工作流
+    category: user_behavior
+    properties:
+      - name: workflow_type
+        type: string
+        enum: [new_product, promotion, daily_ops]
+        desc: 工作流类型
+      - name: input_method
+        type: string
+        enum: [text_command, button_click, voice]
+        desc: 输入方式
+      - name: raw_input_length
+        type: integer
+        desc: 原始输入字符数（脱敏）
+      - name: source_page
+        type: string
+        enum: [dashboard_chatbar, chat_page, quick_action_btn]
+        desc: 触发来源页面
+    trigger: Manager 接收到商家指令时
+    qa_sql: SELECT workflow_type, COUNT(*) as cnt FROM tracking_events WHERE event_name='workflow_start' AND DATE(timestamp)=CURDATE() GROUP BY 1
+
+  - name: workflow_cancel
+    description: 商家中途取消工作流
+    category: user_behavior
+    properties:
+      - name: workflow_id
+        type: string
+      - name: cancel_reason
+        type: string
+        enum: [too_slow, wrong_info, changed_mind, other]
+      - name: progress_percent
+        type: integer
+        desc: 取消时的进度百分比
+
+  # ==========================================================
+  # 工作流执行事件（系统行为）
+  # ==========================================================
+
+  - name: workflow_step_start
+    description: 工作流某步骤开始执行
+    category: workflow_execution
+    properties:
+      - name: workflow_id
+        type: string
+      - name: step_name
+        type: string
+        desc: 步骤名（如 info_collection / parallel_processing / quality_check）
+      - name: step_index
+        type: integer
+        desc: 步骤序号（从 1 开始）
+      - name: is_parallel
+        type: boolean
+        desc: 是否并行执行
+
+  - name: agent_task_dispatch
+    description: Manager 派发任务给子 Agent
+    category: workflow_execution
+    properties:
+      - name: workflow_id
+        type: string
+      - name: target_agent
+        type: string
+        enum: [manager, designer, copywriter, operator, service, finance, warehouse]
+      - name: task_type
+        type: string
+        desc: 任务类型（image_generation / copywriting / pricing_analysis 等）
+        enum: [image_generation, image_editing, copywriting, seo_optimization,
+               data_analysis, competitor_analysis, pricing_strategy, campaign_planning,
+               inventory_check, restock_suggestion, bill_reconciliation]
+      - name: dispatch_mode
+        type: string
+        enum: [sequential, parallel]
+        desc: 串行/并行
+      - name: priority
+        type: string
+        enum: [urgent, normal, low]
+    trigger: 任务发出时
+
+  - name: agent_task_complete
+    description: 子 Agent 完成任务
+    category: workflow_execution
+    properties:
+      - name: workflow_id
+        type: string
+      - name: agent_id
+        type: string
+        enum: [manager, designer, copywriter, operator, service, finance, warehouse]
+      - name: task_type
+        type: string
+      - name: duration_seconds
+        type: integer
+      - name: retry_count
+        type: integer
+        desc: 重试次数（0=首次成功）
+      - name: success
+        type: boolean
+      - name: quality_score
+        type: float
+        desc: Manager 质检评分 0-10
+        range: [0, 10]
+      - name: output_size
+        type: integer
+        desc: 输出内容大小（字符数/文件大小）
+    trigger: 子 Agent 返回结果时
+
+  - name: agent_task_fail
+    description: 子 Agent 任务失败（含重试后仍失败）
+    category: workflow_execution
+    properties:
+      - name: workflow_id
+        type: string
+      - name: agent_id
+        type: string
+      - name: failure_reason
+        type: string
+        enum: [timeout, api_error, quality_rejected, model_unavailable, tool_error]
+      - name: retry_count
+        type: integer
+      - name: escalated_to_human
+        type: boolean
+        desc: 是否升级给人工
+
+  - name: workflow_complete
+    description: 工作流完成
+    category: workflow_execution
+    properties:
+      - name: workflow_id
+        type: string
+      - name: workflow_type
+        type: string
+      - name: total_duration_seconds
+        type: integer
+      - name: agent_count
+        type: integer
+        desc: 参与的 Agent 数量
+      - name: success
+        type: boolean
+      - name: human_intervention_count
+        type: integer
+        desc: 人工介入次数
+      - name: output_quality_score
+        type: float
+        desc: 最终输出质量评分 0-10
+      - name: total_tokens_used
+        type: integer
+        desc: 总 Token 消耗
+      - name: total_cost_yuan
+        type: float
+        desc: 总 API 费用（元）
+    trigger: Manager 输出最终汇报时
+
+  # ==========================================================
+  # 客服专项事件
+  # ==========================================================
+
+  - name: customer_message_received
+    description: 收到客户咨询消息
+    category: customer_service
+    properties:
+      - name: session_id
+        type: string
+      - name: platform
+        type: string
+        enum: [taobao, jd, douyin, web]
+      - name: intent_classified
+        type: string
+        desc: 意图识别结果
+        enum: [logistics_query, return_exchange, product_inquiry, coupon_inquiry,
+               order_modification, complaint, chitchat, other]
+      - name: confidence
+        type: float
+        desc: 意图识别置信度 0-1
+        range: [0, 1]
+      - name: sentiment
+        type: string
+        enum: [satisfied, neutral, dissatisfied, angry]
+
+  - name: cs_auto_reply
+    description: 客服 Agent 自动回复
+    category: customer_service
+    properties:
+      - name: session_id
+        type: string
+      - name: confidence
+        type: float
+        desc: 回复置信度
+      - name: rag_used
+        type: boolean
+        desc: 是否使用了 RAG 检索
+      - name: rag_results_count
+        type: integer
+        desc: RAG 检索返回的结果数
+      - name: response_time_ms
+        type: integer
+        desc: 响应时间（毫秒）
+
+  - name: cs_escalate_to_human
+    description: 客服自动转人工
+    category: customer_service
+    properties:
+      - name: session_id
+        type: string
+      - name: escalate_reason
+        type: string
+        enum: [low_confidence, angry_emotion, explicit_request, complex_issue]
+      - name: work_order_id
+        type: string
+      - name: conversation_turns
+        type: integer
+        desc: 转人工前的对话轮数
+
+  # ==========================================================
+  # 系统技术事件
+  # ==========================================================
+
+  - name: mcp_tool_call
+    description: MCP 工具调用
+    category: system_technical
+    properties:
+      - name: tool_name
+        type: string
+        desc: MCP 工具名（如 taobao_query_order）
+      - name: platform
+        type: string
+        enum: [taobao, jd, douyin, internal]
+      - name: risk_level
+        type: string
+        enum: [low, medium, high]
+      - name: duration_ms
+        type: integer
+      - name: success
+        type: boolean
+      - name: error_code
+        type: string
+        desc: 失败时的错误码
+      - name: retry_count
+        type: integer
+    trigger: 每次 MCP 工具调用
+
+  - name: llm_api_call
+    description: LLM API 调用
+    category: system_technical
+    properties:
+      - name: model_name
+        type: string
+        enum: [deepseek-v3, qwen-max, doubao-pro, tongyi-wanxiang]
+      - name: call_type
+        type: string
+        enum: [chat_completion, embedding, image_generation]
+      - name: prompt_tokens
+        type: integer
+      - name: completion_tokens
+        type: integer
+      - name: duration_ms
+        type: integer
+      - name: success
+        type: boolean
+      - name: is_failover
+        type: boolean
+        desc: 是否为主模型不可用后的 Failover 调用
+
+  - name: model_failover
+    description: 主模型不可用，触发 Failover
+    category: system_technical
+    properties:
+      - name: from_model
+        type: string
+      - name: to_model
+        type: string
+      - name: fail_reason
+        type: string
+        enum: [timeout, rate_limit, server_error, quality_degraded]
+      - name: switch_duration_ms
+        type: integer
+
+  # ==========================================================
+  # 评测与质量事件
+  # ==========================================================
+
+  - name: evaluation_run
+    description: 评测集执行
+    category: quality
+    properties:
+      - name: eval_set_version
+        type: string
+        desc: 评测集版本号（如 eval_v1.0）
+      - name: agent_type
+        type: string
+      - name: total_score
+        type: float
+      - name: accuracy_score
+        type: float
+      - name: safety_score
+        type: float
+      - name: pass
+        type: boolean
+      - name: trigger_reason
+        type: string
+        enum: [prompt_change, model_upgrade, periodic_regression, bad_case_accumulated]
+
+  - name: bad_case_logged
+    description: Bad Case 记录
+    category: quality
+    properties:
+      - name: agent_type
+        type: string
+      - name: scene
+        type: string
+      - name: failure_reason
+        type: string
+        enum: [intent_error, rag_recall_fail, hallucination, format_error, safety_violation]
+      - name: severity
+        type: string
+        enum: [low, medium, high, critical]
+      - name: added_to_eval
+        type: boolean
+        desc: 是否已回流进评测集

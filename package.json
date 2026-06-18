@@ -1,0 +1,46 @@
+{
+  "name": "ecommerce-multi-agent",
+  "version": "1.0.0",
+  "description": "电商多Agent协同系统 — 基于 MCP 协议 + Orchestrator 架构，7 个专业 Agent 协同完成电商运营全流程自动化",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/backend/server.js",
+    "dev": "nodemon src/backend/server.js",
+    "init-db": "node src/backend/db/init.js",
+    "new-product": "node src/workflows/new-product.js",
+    "promotion": "node src/workflows/promotion.js",
+    "daily-ops": "node src/workflows/daily-ops.js",
+    "seed": "node src/backend/db/init.js",
+    "test": "jest"
+  },
+  "keywords": [
+    "ai",
+    "agents",
+    "multi-agent",
+    "ecommerce",
+    "mcp",
+    "电商",
+    "人工智能",
+    "自动化",
+    "langgraph",
+    "orchestrator"
+  ],
+  "author": "电商多Agent团队",
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^12.11.1",
+    "cors": "^2.8.6",
+    "dotenv": "^16.3.1",
+    "express": "^4.21.0",
+    "uuid": "^9.0.0",
+    "ws": "^8.21.0",
+    "yaml": "^2.3.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

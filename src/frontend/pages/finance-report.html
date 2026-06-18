@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>EcomAgents — 财务报表</title>
+<style>
+  :root{--bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1)}
+  *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg-root);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
+  .sidebar{width:220px;min-width:220px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:10}
+  .side-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+  .side-logo .mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),#6366f1);border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;color:#fff}
+  .side-logo span{font-family:Georgia,serif;font-size:18px;font-weight:700;background:linear-gradient(135deg,#e2e8f0,#94a3b8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:2px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);cursor:pointer;transition:var(--transition);font-size:14px;text-decoration:none}
+  .nav-item:hover{background:var(--bg-hover);color:var(--text-primary)}.nav-item.active{background:var(--accent);color:#fff;box-shadow:0 0 12px var(--accent-glow)}
+  .spacer{flex:1}.side-user{margin:0 12px;padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+  .side-user .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
+  .main{flex:1;overflow-y:auto;padding:24px 32px}.main::-webkit-scrollbar{width:6px}.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+  h1{font-size:22px;margin-bottom:20px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
+  .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+  .card h3{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .metric{text-align:center;padding:16px;background:var(--bg-surface);border-radius:var(--radius);border:1px solid var(--border)}
+  .metric .val{font-size:24px;font-weight:800;font-family:monospace}.metric .label{font-size:11px;color:var(--text-muted);margin-top:2px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th{text-align:left;padding:10px 12px;color:var(--text-muted);font-weight:500;font-size:11px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+  td{padding:10px 12px;border-bottom:1px solid rgba(30,58,95,.4)}
+  .up{color:var(--green)}.down{color:var(--red)}
+  .profit-card{background:linear-gradient(135deg,rgba(34,197,94,.06),rgba(34,197,94,.02));border:1px solid rgba(34,197,94,.2);border-radius:var(--radius);padding:20px;text-align:center}
+  .profit-card .val{font-size:36px;font-weight:800;color:var(--green);font-family:monospace}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="side-logo"><div class="mark">EA</div><span>EcomAgents</span></div>
+  <a href="dashboard.html" class="nav-item">🏠 主控台</a>
+  <a href="chat.html" class="nav-item">💬 对话</a>
+  <a href="workflow-detail.html" class="nav-item">⚡ 工作流</a>
+  <a href="new-product-wizard.html" class="nav-item">📦 新品上架</a>
+  <a href="agent-management.html" class="nav-item">🤖 Agent管理</a>
+  <a href="data-dashboard.html" class="nav-item">📊 数据中心</a>
+  <a href="promotion.html" class="nav-item">🎪 促销活动</a>
+  <a href="service-workbench.html" class="nav-item">💬 客服工作台</a>
+  <a href="finance-report.html" class="nav-item active">💰 财务报表</a>
+  <a href="settings.html" class="nav-item">⚙️ 设置</a>
+  <div class="spacer"></div>
+  <div class="side-user"><div class="av">A</div><div><div style="font-size:13px;font-weight:600">商家 A</div><div style="color:var(--green);font-size:11px"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:4px"></span>在线</div></div></div>
+</aside>
+
+<div class="main">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <h1 style="margin-bottom:0">💰 财务报表</h1>
+    <div style="display:flex;gap:8px">
+      <select style="padding:8px 12px;background:var(--bg-surface);border:1px solid var(--border);border-radius:8px;color:var(--text-primary);font-size:13px"><option>2026年6月</option><option>2026年5月</option><option>2026年4月</option></select>
+      <button style="padding:8px 16px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer">📥 导出报表</button>
+    </div>
+  </div>
+
+  <!-- Profit highlight -->
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="profit-card"><div style="font-size:12px;color:var(--text-muted);margin-bottom:6px">🧮 本月净利润</div><div class="val">¥150,360</div><div style="font-size:13px;color:var(--text-muted);margin-top:6px">净利率 75.8% · 环比 ↑15%</div></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div class="metric"><div class="val">¥198,420</div><div class="label">营业收入</div></div>
+      <div class="metric"><div class="val">¥5,260</div><div class="label" style="color:var(--red)">退款金额</div></div>
+      <div class="metric"><div class="val">¥12,800</div><div class="label">推广费用</div></div>
+      <div class="metric"><div class="val">¥8,540</div><div class="label">物流费用</div></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <!-- Revenue detail -->
+    <div class="card">
+      <h3>📈 收入明细</h3>
+      <table>
+        <thead><tr><th>日期</th><th>订单数</th><th>营业额</th><th>退款</th><th>净收入</th></tr></thead>
+        <tbody>
+          <tr><td>6/17</td><td>142</td><td>¥12,580</td><td class="down">¥654</td><td>¥11,926</td></tr>
+          <tr><td>6/16</td><td>170</td><td>¥15,200</td><td class="down">¥319</td><td>¥14,881</td></tr>
+          <tr><td>6/15</td><td>165</td><td>¥14,800</td><td class="down">¥340</td><td>¥14,460</td></tr>
+          <tr><td>6/14</td><td>155</td><td>¥13,900</td><td class="down">¥348</td><td>¥13,552</td></tr>
+          <tr><td>6/13</td><td>162</td><td>¥14,600</td><td class="down">¥350</td><td>¥14,250</td></tr>
+          <tr style="font-weight:700;background:rgba(59,130,246,.05)"><td>本月合计</td><td>2,380</td><td>¥198,420</td><td class="down">¥5,260</td><td>¥193,160</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Expense breakdown -->
+    <div class="card">
+      <h3>💸 费用构成（本月）</h3>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>推广费用</span><span style="font-weight:700">¥12,800 (26.6%)</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="width:46%;height:100%;background:var(--accent);border-radius:3px"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>物流费用</span><span style="font-weight:700">¥8,540 (17.7%)</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="width:30%;height:100%;background:var(--purple);border-radius:3px"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>平台佣金</span><span style="font-weight:700">¥9,921 (20.6%)</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="width:36%;height:100%;background:var(--amber);border-radius:3px"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>包装耗材</span><span style="font-weight:700">¥4,760 (9.9%)</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="width:17%;height:100%;background:var(--text-muted);border-radius:3px"></div></div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px"><span>AI API 成本</span><span style="font-weight:700;color:var(--green)">¥1,420 (3.0%)</span></div>
+          <div style="height:6px;background:var(--border);border-radius:3px"><div style="width:5%;height:100%;background:var(--green);border-radius:3px"></div></div>
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;font-weight:700;font-size:14px"><span>费用合计</span><span>¥48,060</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform breakdown -->
+  <div class="card">
+    <h3>🏪 各平台收入占比</h3>
+    <table>
+      <thead><tr><th>平台</th><th>收入</th><th>占比</th><th>退款率</th><th>利润率</th></tr></thead>
+      <tbody>
+        <tr><td>🟠 淘宝</td><td>¥98,560</td><td>49.7%</td><td>2.8%</td><td class="up">76.2%</td></tr>
+        <tr><td>🔴 京东</td><td>¥52,300</td><td>26.4%</td><td>2.1%</td><td class="up">74.8%</td></tr>
+        <tr><td>⚫ 抖音电商</td><td>¥35,720</td><td>18.0%</td><td>3.2%</td><td class="down">72.5%</td></tr>
+        <tr><td>🔴 拼多多</td><td>¥11,840</td><td>5.9%</td><td>4.5%</td><td class="down">68.3%</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+</body>
+</html>
