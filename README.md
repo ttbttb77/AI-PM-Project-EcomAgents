@@ -73,14 +73,14 @@
 
 ```mermaid
 flowchart LR
-  U["商家 / 产品原型页面"] --> F["静态前端页面"]
-  F --> API["Express REST API"]
-  F --> WS["WebSocket 进度推送"]
-  API --> O["Orchestrator 工作流编排器"]
+  U[“商家 / 产品原型页面”] --> F[“静态前端页面”]
+  F --> API[“Express REST API”]
+  F --> WS[“WebSocket 进度推送”]
+  API --> O[“Orchestrator 工作流编排器”]
   WS --> O
-  O --> A["Agent Runtime State"]
-  O --> DB["SQLite: workflow_executions / agent_tasks"]
-  O --> M["模拟 Agent 输出"]
+  O --> A[“Agent Runtime State”]
+  O --> DB[“SQLite: workflow_executions / agent_tasks”]
+  O --> M[“模拟 Agent 输出”]
 ```
 
 关键文件：
@@ -144,13 +144,13 @@ POST /api/workflows/new_product/start
 - 经营数据是 seed/mock 数据
 - 当前没有接入真实 LLM API、RAG、MCP 工具或电商平台 API
 - 当前指标用于验证口径和链路，不代表真实商家业务结果
-- 项目更适合定位为“AI 产品原型 + 架构验证 Demo”
+- 项目更适合定位为”AI 产品原型 + 架构验证 Demo”
 
 > 当前版本重点验证多 Agent 工作流编排、状态流转、页面交互、任务记录和指标框架。Agent 输出与经营数据均为模拟数据，不代表真实线上业务结果。下一步会接入真实 LLM API、RAG 知识库、MCP 工具调用和种子商家数据，验证人工流程与 Agent 流程的真实差异。
 
 ## 面向 AI 产品岗位的项目价值
 
-这个项目不把重点放在“后端工程实现”，而是用于展示 AI 产品 0-1 的完整思考：
+这个项目不把重点放在”后端工程实现”，而是用于展示 AI 产品 0-1 的完整思考：
 
 - 如何识别电商运营中的高频、多角色、长链路场景
 - 如何把业务角色抽象成专业 Agent
