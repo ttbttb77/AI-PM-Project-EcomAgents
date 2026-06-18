@@ -4,6 +4,8 @@
 
 > 当前项目是 AI 产品原型与架构验证 Demo，不是线上生产系统。Agent 输出和经营数据均为模拟数据，用于验证流程、交互和指标框架。
 
+🔗 **在线 Demo**：[ecomagents-dp9engc836g8.edgeone.dev/chat.htm](https://ecomagents-dp9engc836g8.edgeone.dev/chat.htm)
+
 ![Dashboard](docs/assets/dashboard.png)
 
 ## 为什么做这个项目
@@ -111,6 +113,12 @@ npm.cmd start
 
 ```text
 http://localhost:3000/pages/dashboard.html
+```
+
+或直接访问在线 Demo（无需本地运行）：
+
+```text
+https://ecomagents-dp9engc836g8.edgeone.dev/chat.htm
 ```
 
 运行测试：
