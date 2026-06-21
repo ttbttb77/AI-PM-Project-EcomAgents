@@ -4,7 +4,7 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>EcomAgents — 工作流详情</title>
 <style>
-  :root { --bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1); }
+  :root{--bg-root:#0a0f1a;--bg-surface:#111827;--bg-card:#1a2332;--bg-hover:#1e2d3d;--border:#1e3a5f;--text-primary:#e2e8f0;--text-secondary:#94a3b8;--text-muted:#64748b;--accent:#3b82f6;--accent-glow:rgba(59,130,246,.25);--green:#22c55e;--amber:#f59e0b;--red:#ef4444;--purple:#8b5cf6;--radius:12px;--radius-sm:8px;--transition:200ms cubic-bezier(.4,0,.2,1)}
   *{margin:0;padding:0;box-sizing:border-box}body{font-family:'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg-root);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;-webkit-font-smoothing:antialiased}
   .sidebar{width:220px;min-width:220px;background:var(--bg-surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;z-index:10}
   .side-logo{display:flex;align-items:center;gap:10px;padding:0 20px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
@@ -15,27 +15,77 @@
   .spacer{flex:1}.side-user{margin:0 12px;padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
   .side-user .av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff}
   .main{flex:1;overflow-y:auto;padding:24px 32px}.main::-webkit-scrollbar{width:6px}.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-  .topbar h1{font-size:22px}.topbar .badge{padding:6px 12px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px}
-  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;margin-bottom:20px}
+  .topbar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px}
+  .topbar h1{font-size:20px;line-height:1.3}.topbar .badge{padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;white-space:nowrap}
+  .badge-ready{background:rgba(59,130,246,.1);color:var(--accent);border:1px solid rgba(59,130,246,.3)}
+  .badge-running{background:rgba(245,158,11,.1);color:var(--amber);border:1px solid rgba(245,158,11,.3)}
+  .badge-done{background:rgba(34,197,94,.1);color:var(--green);border:1px solid rgba(34,197,94,.3)}
+  .demo-notice{display:flex;align-items:center;gap:8px;padding:8px 14px;background:rgba(139,92,246,.06);border:1px solid rgba(139,92,246,.2);border-radius:var(--radius-sm);font-size:11px;color:#a78bfa;margin-bottom:20px}
+  .demo-notice b{color:#c4b5fd}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:20px}
   .card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
-  .card h3{font-size:15px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
-  .timeline{position:relative;padding-left:24px}
-  .timeline::before{content:'';position:absolute;left:8px;top:4px;bottom:4px;width:2px;background:var(--border)}
-  .tl-item{position:relative;padding:8px 0 8px 20px;font-size:13px;border-left:2px solid transparent}
-  .tl-item::before{content:'';position:absolute;left:-29px;top:14px;width:10px;height:10px;border-radius:50%}
-  .tl-item.done{border-left-color:var(--green)}.tl-item.done::before{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.3)}
-  .tl-item.active{border-left-color:var(--amber)}.tl-item.active::before{background:var(--amber);box-shadow:0 0 6px rgba(245,158,11,.4);animation:pulse 1.5s infinite}
-  .tl-item.pending{border-left-color:var(--border)}.tl-item.pending::before{background:var(--text-muted)}
-  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.6);opacity:.5}}
-  .tl-time{font-size:11px;color:var(--text-muted)}.tl-agent{font-weight:600}
-  .agent-mini{display:flex;align-items:center;gap:8px;padding:8px;background:var(--bg-surface);border-radius:8px;margin-bottom:6px;font-size:13px}
-  .agent-mini .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg-root)}
-  .stat-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px}
-  .stat-row:last-child{border-bottom:none}.stat-val{font-weight:700;font-family:'Cascadia Code',monospace}
+  .card h3{font-size:14px;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .stat-big{font-size:26px;font-weight:800;font-family:monospace}
+  .stat-label{font-size:11px;color:var(--text-muted);margin-top:2px}
+  .wf-progress{margin-bottom:20px}
+  .wf-progress-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:6px}
+  .wf-progress-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--accent),var(--green));transition:width 0.6s ease}
+  .wf-progress-label{font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .timeline{position:relative;padding-left:22px}
+  .timeline::before{content:'';position:absolute;left:7px;top:4px;bottom:4px;width:2px;background:var(--border)}
+  .tl-item{position:relative;padding:8px 0 8px 18px;font-size:13px}
+  .tl-item::before{content:'';position:absolute;left:-27px;top:14px;width:10px;height:10px;border-radius:50%;transition:all .4s}
+  .tl-item.waiting::before{background:var(--text-muted);opacity:.4}
+  .tl-item.running::before{background:var(--amber);box-shadow:0 0 8px rgba(245,158,11,.6);animation:pulse 1.2s infinite}
+  .tl-item.done::before{background:var(--green);box-shadow:0 0 6px rgba(34,197,94,.4)}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.7);opacity:.5}}
+  .tl-time{font-size:10px;color:var(--text-muted);margin-bottom:2px}
+  .tl-agent{font-weight:600;margin-bottom:2px}
+  .tl-desc{font-size:12px;color:var(--text-secondary)}
+  .tl-output{font-size:11px;color:var(--green);margin-top:4px;padding:6px 10px;background:rgba(34,197,94,.06);border-left:2px solid var(--green);border-radius:0 4px 4px 0;line-height:1.6;display:none}
+  .tl-item.done .tl-output{display:block}
+  .tl-parallel-tag{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:2px 7px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);border-radius:10px;color:var(--accent);margin-bottom:3px}
+  .agent-mini{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg-surface);border-radius:var(--radius-sm);margin-bottom:6px;font-size:13px;border:1px solid transparent;transition:var(--transition)}
+  .agent-mini.active{border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.04)}
+  .agent-mini.done{border-color:rgba(34,197,94,.2);background:rgba(34,197,94,.03)}
+  .agent-mini .icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg-root);min-width:32px}
+  .status-wait{color:var(--text-muted)}.status-run{color:var(--amber)}.status-done{color:var(--green)}
+  .output-grid{display:flex;gap:8px;overflow-x:auto;padding:4px 0}
+  .output-item{min-width:96px;height:96px;background:var(--bg-surface);border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;padding:8px;border:1px solid var(--border);text-align:center;color:var(--text-muted);transition:all .4s;flex-shrink:0}
+  .output-item.ready{border-color:rgba(34,197,94,.3);background:rgba(34,197,94,.04);color:var(--text-secondary)}
+  .output-item .big-icon{font-size:28px;margin-bottom:4px}
+  .cost-row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+  .cost-row:last-child{border-bottom:none}.cost-val{font-weight:700;font-family:monospace}
+  .complete-card{display:none;background:linear-gradient(135deg,rgba(34,197,94,.08),rgba(59,130,246,.06));border:1px solid rgba(34,197,94,.3);border-radius:var(--radius);padding:24px;margin-bottom:16px;text-align:center}
+  .complete-card.show{display:block;animation:fadeIn .6s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  /* Human-in-the-loop 审核面板 */
+  .review-panel{display:none;background:linear-gradient(135deg,rgba(245,158,11,.07),rgba(239,68,68,.04));border:1px solid rgba(245,158,11,.35);border-radius:var(--radius);padding:24px;margin-bottom:16px}
+  .review-panel.show{display:block;animation:fadeIn .5s ease}
+  .review-panel h3{font-size:15px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .review-panel .sub{font-size:12px;color:var(--text-muted);margin-bottom:16px}
+  .review-checklist{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
+  .check-item{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg-surface);border-radius:var(--radius-sm);font-size:13px;border:1px solid var(--border)}
+  .check-item .ck{width:18px;height:18px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;background:rgba(34,197,94,.15);color:var(--green);flex-shrink:0}
+  .review-actions{display:flex;gap:12px;justify-content:center}
+  .btn-approve{padding:11px 28px;background:var(--green);border:none;border-radius:24px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:7px}
+  .btn-approve:hover{box-shadow:0 0 20px rgba(34,197,94,.35);transform:translateY(-1px)}
+  .btn-reject{padding:11px 24px;background:transparent;border:1px solid rgba(239,68,68,.4);border-radius:24px;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);display:flex;align-items:center;gap:6px}
+  .btn-reject:hover{background:rgba(239,68,68,.08)}
+  .hitl-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.3);border-radius:10px;color:var(--amber);font-size:10px;font-weight:600}
+  /* 启动面板 */
+  .start-panel{background:linear-gradient(135deg,rgba(59,130,246,.08),rgba(99,102,241,.06));border:1px solid rgba(59,130,246,.25);border-radius:var(--radius);padding:28px;margin-bottom:20px;text-align:center}
+  .start-panel h2{font-size:17px;margin-bottom:8px}
+  .start-panel p{font-size:13px;color:var(--text-secondary);margin-bottom:20px;line-height:1.7}
+  .btn-start{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--accent);border:none;border-radius:24px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:var(--transition)}
+  .btn-start:hover{box-shadow:0 0 24px var(--accent-glow);transform:translateY(-1px)}
+  .btn-start:disabled{opacity:.5;cursor:not-allowed;transform:none}
   .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;transition:var(--transition);border:1px solid var(--border);background:var(--bg-surface);color:var(--text-secondary);text-decoration:none}
-  .btn:hover{border-color:var(--accent);color:var(--accent)}.btn.danger{color:var(--red);border-color:rgba(239,68,68,.3)}.btn.danger:hover{background:rgba(239,68,68,.1)}
+  .btn:hover{border-color:var(--accent);color:var(--accent)}.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}.btn.pri:hover{box-shadow:0 0 18px var(--accent-glow)}
+  .btn.danger{color:var(--red);border-color:rgba(239,68,68,.3)}.btn.danger:hover{background:rgba(239,68,68,.1)}
+  @media(max-width:900px){.grid3{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+  @media(max-width:600px){.grid3{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -56,66 +106,384 @@
 </aside>
 
 <div class="main">
-  <div class="topbar">
-    <div><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">工作流 / 详情</div><h1>📦 新品上架：304 不锈钢保温杯 <span class="badge">⏳ 进行中</span></h1></div>
-    <div style="display:flex;gap:8px"><button class="btn">⏸️ 暂停</button><button class="btn danger">✕ 取消</button></div>
+  <div class="demo-notice">
+    <span>🔬</span>
+    <span><b>Demo 模式</b>：Agent 任务调度与状态流转为真实架构，输出内容为模拟数据。包含 <b>Human-in-the-Loop</b> 审核节点设计，高风险操作需人工确认。</span>
   </div>
 
-  <!-- Stats row -->
-  <div class="grid3">
-    <div class="card"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">⏱️ 已耗时</div><div style="font-size:28px;font-weight:800;font-family:monospace">12:38</div></div>
-    <div class="card"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">🤖 参与 Agent</div><div style="font-size:28px;font-weight:800">5</div></div>
-    <div class="card"><div style="font-size:12px;color:var(--text-muted);margin-bottom:4px">⚡ 当前步骤</div><div style="font-size:20px;font-weight:700;color:var(--amber)">并行处理中</div></div>
+  <div class="topbar">
+    <div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px">工作流 / 详情</div>
+      <h1 id="wfTitle">📦 新品上架：304 不锈钢保温杯</h1>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+      <span class="badge badge-ready" id="statusBadge">⏸ 待执行</span>
+      <button class="btn danger" onclick="if(confirm('确认取消？'))window.location.href='dashboard.html'">✕ 返回</button>
+    </div>
+  </div>
+
+  <!-- 启动面板（运行后隐藏） -->
+  <div class="start-panel" id="startPanel">
+    <div style="font-size:36px;margin-bottom:10px">⚡</div>
+    <h2 id="startTitle">新品上架工作流已就绪</h2>
+    <p id="startDesc">
+      7 步自动化流程：信息收集 → 任务拆解 → 并行处理（美工/文案/运营）→ 库存设置 → 质量审核 → 上架 → 结果汇报<br>
+      <span style="color:var(--text-muted)">预计耗时 25 分钟 · 5 个 Agent 协同 · 传统方式需 2 天</span>
+    </p>
+    <button class="btn-start" id="startBtn" onclick="startWorkflow()">▶ 开始执行工作流</button>
+  </div>
+
+  <!-- 进度条（初始隐藏） -->
+  <div class="wf-progress" id="progressArea" style="display:none">
+    <div class="wf-progress-bar"><div class="wf-progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="wf-progress-label"><span id="progressLabel">准备启动...</span><span id="progressPct">0%</span></div>
+  </div>
+
+  <!-- Stats 卡片（初始隐藏） -->
+  <div class="grid3" id="statsArea" style="display:none">
+    <div class="card"><div class="stat-label">⏱️ 已耗时</div><div class="stat-big" id="elapsed">00:00</div></div>
+    <div class="card"><div class="stat-label">🤖 参与 Agent</div><div class="stat-big" id="agentCount">0</div></div>
+    <div class="card"><div class="stat-label">⚡ 当前步骤</div><div class="stat-big" style="font-size:16px;color:var(--amber)" id="curStep">—</div></div>
+  </div>
+
+  <!-- Human-in-the-loop 质量审核面板 -->
+  <div class="review-panel" id="reviewPanel">
+    <h3>&#x1F9D1;&#x200D;&#x2696;&#xFE0F; 人工审核节点 <span class="hitl-badge">&#x1F440; Human-in-the-Loop</span></h3>
+    <div class="sub">&#x5404; Agent 产出已生成，请人工确认是否符合上架条件再继续执行</div>
+    <div class="review-checklist">
+      <div class="check-item"><div class="ck">&#x2713;</div><span>&#x5546;品图 &#xd7;5 已生成，风格符合要求</span></div>
+      <div class="check-item"><div class="ck">&#x2713;</div><span>&#x6807;题 &#xd7;5 + 详情页 1,200 字，无违禁词</span></div>
+      <div class="check-item"><div class="ck">&#x2713;</div><span>&#x5b9a;价 <span id="reviewPrice" style="color:var(--accent);font-weight:700"></span>，有竞品数据支擐</span></div>
+      <div class="check-item"><div class="ck">&#x2713;</div><span>SKU 已创建，库存 <span id="reviewStock" style="color:var(--accent);font-weight:700"></span> 件</span></div>
+    </div>
+    <div class="review-actions">
+      <button class="btn-approve" id="approveBtn" onclick="onApprove()">&#x2705; 通过，继续上架</button>
+      <button class="btn-reject" id="rejectBtn" onclick="onReject()">&#x21a9;&#xfe0f; 打回修改</button>
+    </div>
+    <div style="margin-top:12px;font-size:11px;color:var(--text-muted);text-align:center">&#x1F4CC; 真实系统中，改价、退款、正式上架等高风险操作均需人工确认节点</div>
+  </div>
+
+  <!-- 完成卡片 -->
+  <div class="complete-card" id="completeCard">
+    <div style="font-size:40px;margin-bottom:8px">🎉</div>
+    <h2 style="color:var(--green);margin-bottom:8px">新品上架完成！</h2>
+    <div style="font-size:13px;color:var(--text-secondary);line-height:2;margin-bottom:16px" id="completeDetail"></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:16px">传统方式需 2 天，Agent 协作完成耗时 <span id="totalTime" style="color:var(--green);font-weight:700">—</span>，效率提升 <b style="color:var(--green)">95%</b></div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <a href="new-product-wizard.html" class="btn pri">📦 再上架一款</a>
+      <a href="data-dashboard.html" class="btn">📊 查看数据</a>
+    </div>
   </div>
 
   <div class="grid2">
-    <!-- Timeline -->
     <div class="card">
       <h3>📋 执行时间线</h3>
-      <div class="timeline">
-        <div class="tl-item done"><div class="tl-time">10:00:05</div><div class="tl-agent">👔 店长</div>接收指令，开始信息采集</div>
-        <div class="tl-item done"><div class="tl-time">10:02:30</div><div class="tl-agent">👔 店长</div>任务分解完成，分配至 5 个 Agent</div>
-        <div class="tl-item done"><div class="tl-time">10:02:45</div><div class="tl-agent">🎨 美工</div>开始生成商品图（通义万相）</div>
-        <div class="tl-item done"><div class="tl-time">10:02:45</div><div class="tl-agent">✍️ 文案</div>开始撰写标题和详情页</div>
-        <div class="tl-item done"><div class="tl-time">10:02:46</div><div class="tl-agent">📊 运营</div>开始竞品价格分析</div>
-        <div class="tl-item active"><div class="tl-time">10:08:20</div><div class="tl-agent">✅ 美工完成</div>5张商品图，质量评分 9/10</div>
-        <div class="tl-item active"><div class="tl-time">10:10:15</div><div class="tl-agent">✅ 文案完成</div>5个标题+详情页1200字</div>
-        <div class="tl-item pending"><div class="tl-time">预计 10:15</div><div class="tl-agent">⏳ 运营进行中</div>定价策略计算中...</div>
-        <div class="tl-item pending"><div class="tl-time">待执行</div><div class="tl-agent">📦 仓储</div>设置 SKU 和初始库存</div>
-        <div class="tl-item pending"><div class="tl-time">待执行</div><div class="tl-agent">👔 质审</div>审核所有产出物</div>
-        <div class="tl-item pending"><div class="tl-time">待执行</div><div class="tl-agent">🚀 上架</div>MCP 推送至淘宝</div>
-      </div>
+      <div class="timeline" id="timeline"></div>
     </div>
-
-    <!-- Agent status + outputs -->
-    <div class="card">
-      <h3>🤖 Agent 执行状态</h3>
-      <div class="agent-mini"><div class="icon">🎨</div><div style="flex:1"><b>美工</b><br><span style="font-size:11px;color:var(--green)">✅ 已完成 5张图 · 9/10分 · 3分钟</span></div><div style="color:var(--green)">●</div></div>
-      <div class="agent-mini"><div class="icon">✍️</div><div style="flex:1"><b>文案</b><br><span style="font-size:11px;color:var(--green)">✅ 已完成 · 8/10分 · 2分钟</span></div><div style="color:var(--green)">●</div></div>
-      <div class="agent-mini"><div class="icon">📊</div><div style="flex:1"><b>运营</b><br><span style="font-size:11px;color:var(--amber)">⏳ 进行中 70% · 预计还需2分钟</span></div><div style="color:var(--amber);animation:pulse 1.5s infinite">●</div></div>
-      <div class="agent-mini"><div class="icon">📦</div><div style="flex:1"><b>仓储</b><br><span style="font-size:11px;color:var(--text-muted)">⏸️ 等待中（依赖运营完成）</span></div><div style="color:var(--text-muted)">●</div></div>
-      <div class="agent-mini"><div class="icon">👔</div><div style="flex:1"><b>店长（质审）</b><br><span style="font-size:11px;color:var(--text-muted)">⏸️ 等待中</span></div><div style="color:var(--text-muted)">●</div></div>
-
-      <h3 style="margin-top:20px">📦 已产出预览</h3>
-      <div style="display:flex;gap:8px;overflow-x:auto;padding:8px 0">
-        <div style="min-width:100px;height:100px;background:var(--bg-surface);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;border:1px solid var(--border)">🖼️</div>
-        <div style="min-width:100px;height:100px;background:var(--bg-surface);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;border:1px solid var(--border)">🖼️</div>
-        <div style="min-width:100px;height:100px;background:var(--bg-surface);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:32px;border:1px solid var(--border)">🖼️</div>
-        <div style="min-width:100px;height:100px;background:var(--bg-surface);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;padding:8px;border:1px solid var(--border)">标题×5<br>+详情页</div>
+    <div>
+      <div class="card" style="margin-bottom:16px">
+        <h3>🤖 Agent 执行状态</h3>
+        <div id="agentStatus"></div>
+      </div>
+      <div class="card">
+        <h3>📦 产出预览</h3>
+        <div class="output-grid">
+          <div class="output-item" id="out-img1"><div class="big-icon">🖼️</div>主图</div>
+          <div class="output-item" id="out-img2"><div class="big-icon">🖼️</div>场景图</div>
+          <div class="output-item" id="out-img3"><div class="big-icon">🖼️</div>细节图</div>
+          <div class="output-item" id="out-copy"><div class="big-icon">✍️</div>文案</div>
+          <div class="output-item" id="out-price"><div class="big-icon">📊</div>定价</div>
+          <div class="output-item" id="out-sku"><div class="big-icon">📦</div>SKU</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Cost breakdown -->
   <div class="card">
-    <h3>💰 成本估算（实时）</h3>
-    <div class="stat-row"><span>LLM API 调用</span><span class="stat-val" style="color:var(--accent)">¥0.87</span></div>
-    <div class="stat-row"><span>图片生成 API</span><span class="stat-val" style="color:var(--accent)">¥2.50</span></div>
-    <div class="stat-row"><span>MCP 工具调用（预估）</span><span class="stat-val" style="color:var(--text-muted)">¥0.10</span></div>
-    <div class="stat-row"><span style="font-weight:700">合计</span><span class="stat-val" style="color:var(--green);font-size:16px">¥3.47</span></div>
-    <div class="stat-row"><span style="color:var(--text-muted)">传统人工成本</span><span class="stat-val" style="color:var(--red);text-decoration:line-through">¥1,200</span></div>
-    <div style="margin-top:12px;font-size:12px;color:var(--text-muted)">💡 成本节省 99.7%，效率提升 95%</div>
+    <h3>💰 成本估算（模拟）</h3>
+    <div class="cost-row"><span>LLM API（文案/分析）</span><span class="cost-val" style="color:var(--accent)">¥0.87</span></div>
+    <div class="cost-row"><span>图片生成 API（通义万相）</span><span class="cost-val" style="color:var(--accent)">¥2.50</span></div>
+    <div class="cost-row"><span>MCP 工具调用（平台推送）</span><span class="cost-val" style="color:var(--text-muted)">¥0.10</span></div>
+    <div class="cost-row" style="font-size:15px"><span style="font-weight:700">合计</span><span class="cost-val" style="color:var(--green)">¥3.47</span></div>
+    <div class="cost-row"><span style="color:var(--text-muted)">传统人工成本</span><span class="cost-val" style="color:var(--red);text-decoration:line-through">¥1,200</span></div>
+    <div style="margin-top:10px;font-size:11px;color:var(--text-muted)">💡 <span style="color:var(--purple)">模拟估算值，接入真实 LLM API 后按实际 token 计费</span></div>
   </div>
 </div>
+
+<script>
+// ── 读取向导页传入的商品信息 ──
+let productInfo = {};
+try { const s = sessionStorage.getItem('wf_product'); if(s) productInfo = JSON.parse(s); } catch(e){}
+
+const productName   = productInfo.name || '304 不锈钢保温杯';
+const targetAudience= productInfo.targetAudience || '商务白领';
+const style         = productInfo.style || '简约';
+const priceMin      = productInfo.priceMin || 79;
+const priceMax      = productInfo.priceMax || 99;
+const stock         = productInfo.stock || 500;
+const platforms     = (productInfo.platforms || ['taobao']).map(p =>
+  ({taobao:'淘宝',jd:'京东',douyin:'抖音电商',pdd:'拼多多'})[p] || p
+);
+const recPrice  = Math.round((priceMin + priceMax) / 2);
+const compPrice = Math.round(recPrice * 1.12);
+
+// 更新页面标题和启动面板
+document.getElementById('wfTitle').textContent = `📦 新品上架：${productName}`;
+document.getElementById('startTitle').textContent = `${productName} — 上架工作流已就绪`;
+document.getElementById('startDesc').innerHTML = `
+  7 步自动化流程：信息收集 → 任务拆解 → 并行处理（美工/文案/运营）→ 库存设置 → 质量审核 → 上架 → 结果汇报<br>
+  <span style="color:var(--text-muted)">预计耗时约 25 分钟 · 5 个 Agent 协同 · 平台：${platforms.join(' / ')} · 传统方式需 2 天</span>
+`;
+document.getElementById('completeDetail').innerHTML = `
+  ✅ 商品图：5 张（${style}风格，质量评分 9/10）<br>
+  ✅ 文案：标题×5 + 详情页 1,200 字（面向${targetAudience}）<br>
+  ✅ 定价：¥${recPrice}（利润率约 45%，竞品均价 ¥${compPrice}）<br>
+  ✅ 库存：${stock} 件（SKU 已创建）<br>
+  ✅ 平台：已上架至 ${platforms.join(' / ')}
+`;
+
+// ── 步骤定义 ──
+const STEPS = [
+  { id:'info_collect', icon:'👔', name:'信息收集', duration:2000,
+    desc:`店长接收商家指令，整理商品信息卡`,
+    output:`✅ 商品信息卡：${productName} / ${targetAudience} / ¥${priceMin}-${priceMax} / ${platforms.join('+')}`,
+    affects:['manager'] },
+  { id:'task_decompose', icon:'👔', name:'任务拆解', duration:1500,
+    desc:'分析任务依赖关系，生成并行调度方案',
+    output:'✅ Phase 1（并行）：美工 + 文案 + 运营 / Phase 2（串行）：仓储 → 质审 → 上架',
+    affects:['manager'] },
+  { id:'parallel_work', icon:'⚡', name:'并行处理', duration:7000, isParallel:true,
+    desc:'美工、文案、运营三路并行，互不等待',
+    parallelTasks:[
+      {agent:'designer',  icon:'🎨', name:'美工', desc:`生成 ${style} 风格商品图 ×5`, output:`5 张商品图，质量评分 9/10`},
+      {agent:'copywriter',icon:'✍️', name:'文案', desc:`撰写标题和详情页（面向${targetAudience}）`, output:`标题 5 条 + 详情页 1,200 字 + SEO 关键词 7 个`},
+      {agent:'operator',  icon:'📊', name:'运营', desc:'竞品价格分析，计算最优定价', output:`建议定价 ¥${recPrice}（竞品均价 ¥${compPrice}），利润率约 45%`},
+    ],
+    affects:['designer','copywriter','operator'] },
+  { id:'inventory_set', icon:'📦', name:'库存设置', duration:1200,
+    desc:'仓储 Agent 创建 SKU，配置初始库存和安全阈值',
+    output:`✅ SKU-DEMO001 / 初始库存 ${stock} 件 / 安全阈值 50 件 / 仓位：杭州主仓 A-3`,
+    affects:['warehouse'] },
+  { id:'quality_check', icon:'👔', name:'质量审核', duration:1800,
+    desc:'店长逐项审核各 Agent 产出，检查上架条件',
+    output:'✅ 全部通过：图片 ✓ / 文案无违禁词 ✓ / 定价有数据支撑 ✓ / 库存设置正确 ✓',
+    affects:['manager'] },
+  { id:'publish', icon:'📊', name:'一键上架', duration:2500,
+    desc:`MCP 工具调用，推送至 ${platforms.join(' / ')}`,
+    output:`✅ 上架成功！商品 ID: ID-${Math.random().toString(36).slice(2,10).toUpperCase()}`,
+    affects:['operator'] },
+  { id:'report', icon:'👔', name:'结果汇报', duration:1000,
+    desc:'汇总全部产出，生成上架报告',
+    output:`✅ ${productName} 已上架 ${platforms.join('+')}，耗时约 25 分钟（传统方式 2 天）`,
+    affects:['manager'] },
+];
+
+const AGENTS = [
+  {id:'manager',   icon:'👔', name:'店长 Manager'},
+  {id:'designer',  icon:'🎨', name:'美工 Designer'},
+  {id:'copywriter',icon:'✍️', name:'文案 Copywriter'},
+  {id:'operator',  icon:'📊', name:'运营 Operator'},
+  {id:'warehouse', icon:'📦', name:'仓储 Warehouse'},
+];
+
+// ── 渲染时间线和 Agent 状态 ──
+const tlEl = document.getElementById('timeline');
+STEPS.forEach(step => {
+  const div = document.createElement('div');
+  div.className = 'tl-item waiting';
+  div.id = `tl-${step.id}`;
+  div.innerHTML = `
+    <div class="tl-time" id="tlt-${step.id}">待执行</div>
+    <div class="tl-agent">${step.icon} ${step.name}${step.isParallel ? ' <span class="tl-parallel-tag">⚡ 并行</span>':''}</div>
+    <div class="tl-desc">${step.desc}</div>
+    <div class="tl-output" id="tlo-${step.id}">${step.output}</div>`;
+  tlEl.appendChild(div);
+});
+
+const asEl = document.getElementById('agentStatus');
+AGENTS.forEach(agent => {
+  const div = document.createElement('div');
+  div.className = 'agent-mini'; div.id = `as-${agent.id}`;
+  div.innerHTML = `
+    <div class="icon">${agent.icon}</div>
+    <div style="flex:1">
+      <div style="font-weight:600;font-size:13px">${agent.name}</div>
+      <div class="status-wait" id="asd-${agent.id}" style="font-size:11px;margin-top:2px">⏸️ 等待中</div>
+    </div>
+    <div class="status-wait" id="asdot-${agent.id}">●</div>`;
+  asEl.appendChild(div);
+});
+
+// ── 执行引擎 ──
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+let startTime, completedAgents = new Set(), timerInterval;
+let _reviewResolve = null; // Human-in-the-loop 暂停句柄
+let rejectCount = 0;
+
+function getTime(){ return new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+
+function setAgentStatus(id, state, text) {
+  const el=document.getElementById(`as-${id}`), desc=document.getElementById(`asd-${id}`), dot=document.getElementById(`asdot-${id}`);
+  if(!el) return;
+  el.className = `agent-mini ${state}`;
+  if(state==='active'){
+    desc.innerHTML=`<span style="color:var(--amber)">⏳ ${text||'工作中'}</span>`;
+    dot.className='status-run'; dot.style.animation='pulse 1.2s infinite';
+  } else if(state==='done'){
+    desc.innerHTML=`<span style="color:var(--green)">✅ 已完成</span>`;
+    dot.className='status-done'; dot.style.animation='';
+    completedAgents.add(id);
+    document.getElementById('agentCount').textContent = completedAgents.size;
+  }
+}
+
+// 等待人工审核
+function waitForReview() {
+  return new Promise(resolve => {
+    _reviewResolve = resolve;
+    // 填充审核面板信息
+    document.getElementById('reviewPrice').textContent = `¥${recPrice}`;
+    document.getElementById('reviewStock').textContent = stock;
+    const panel = document.getElementById('reviewPanel');
+    panel.classList.add('show');
+    panel.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+}
+
+function onApprove() {
+  document.getElementById('reviewPanel').classList.remove('show');
+  document.getElementById('approveBtn').disabled = true;
+  document.getElementById('rejectBtn').disabled = true;
+  if(_reviewResolve) { _reviewResolve('approve'); _reviewResolve = null; }
+}
+
+function onReject() {
+  rejectCount++;
+  document.getElementById('reviewPanel').classList.remove('show');
+  document.getElementById('approveBtn').disabled = false;
+  document.getElementById('rejectBtn').disabled = false;
+  if(_reviewResolve) { _reviewResolve('reject'); _reviewResolve = null; }
+}
+
+async function runParallelStep(step) {
+  const el=document.getElementById(`tl-${step.id}`), tel=document.getElementById(`tlt-${step.id}`);
+  if(el) el.className='tl-item running'; if(tel) tel.textContent=getTime();
+  document.getElementById('curStep').textContent = step.name;
+  step.affects.forEach(id=>{ const task=step.parallelTasks?.find(t=>t.agent===id); setAgentStatus(id,'active',task?.desc||'并行工作中'); });
+  await sleep(step.duration);
+  for(const task of step.parallelTasks){ setAgentStatus(task.agent,'done'); await sleep(300); }
+  ['out-img1','out-img2','out-img3'].forEach(id=>{ document.getElementById(id).classList.add('ready'); });
+  document.getElementById('out-copy').classList.add('ready'); document.getElementById('out-copy').innerHTML='<div class="big-icon">✍️</div>文案×5';
+  document.getElementById('out-price').classList.add('ready'); document.getElementById('out-price').innerHTML=`<div class="big-icon">📊</div>¥${recPrice}`;
+  if(el) el.className='tl-item done'; if(tel) tel.textContent=getTime();
+}
+
+async function runWorkflow() {
+  const parallelStepIndex = STEPS.findIndex(s => s.isParallel); // 并行步骤索引
+
+  for(let i=0; i<STEPS.length; i++){
+    const step=STEPS[i], t=getTime();
+    const el=document.getElementById(`tl-${step.id}`), tel=document.getElementById(`tlt-${step.id}`);
+
+    const pct=Math.round(i/STEPS.length*100);
+    document.getElementById('progressFill').style.width=pct+'%';
+    document.getElementById('progressPct').textContent=pct+'%';
+    document.getElementById('progressLabel').textContent=`步骤 ${i+1}/${STEPS.length}：${step.name}`;
+
+    if(step.isParallel){
+      await runParallelStep(step);
+    } else if(step.id === 'quality_check') {
+      // ── Human-in-the-loop 审核节点 ──
+      if(el) el.className='tl-item running'; if(tel) tel.textContent=t;
+      document.getElementById('curStep').textContent = 'ℹ️ 等待人工审核...';
+      document.getElementById('curStep').style.color='var(--amber)';
+      step.affects.forEach(id=>setAgentStatus(id,'active','审核中...'));
+      await sleep(600); // 简短延迟再弹出面板
+
+      const decision = await waitForReview();
+
+      if(decision === 'reject') {
+        // 打回：重置并行步骤并重跑
+        const parallelStep = STEPS[parallelStepIndex];
+        const ptl = document.getElementById(`tl-${parallelStep.id}`);
+        const ptel = document.getElementById(`tlt-${parallelStep.id}`);
+        if(ptl) ptl.className='tl-item waiting';
+        if(ptel) ptel.textContent='重行修改';
+        document.getElementById('progressLabel').textContent=`打回重改，重跑并行处理...`;
+        // 清除产出预览
+        ['out-img1','out-img2','out-img3','out-copy','out-price'].forEach(id=>{
+          const el=document.getElementById(id);
+          el.classList.remove('ready');
+          el.innerHTML = el.id.startsWith('out-img') ? '<div class="big-icon">🖼️</div>重改中' :
+            el.id==='out-copy' ? '<div class="big-icon">✍️</div>重改中' :
+            '<div class="big-icon">📊</div>重改中';
+        });
+        await runParallelStep(parallelStep);
+        // 重新审核
+        if(el) el.className='tl-item running';
+        document.getElementById('curStep').textContent = 'ℹ️ 等待人工审核...';
+        step.affects.forEach(id=>setAgentStatus(id,'active','再次审核中...'));
+        await sleep(600);
+        await waitForReview(); // 第二次一定通过（演示用）
+      }
+
+      // 审核通过
+      step.affects.forEach(id=>setAgentStatus(id,'done'));
+      if(el) el.className='tl-item done'; if(tel) tel.textContent=getTime();
+      document.getElementById('curStep').style.color='';
+
+    } else {
+      if(el) el.className='tl-item running'; if(tel) tel.textContent=t;
+      document.getElementById('curStep').textContent = step.name;
+      step.affects.forEach(id=>setAgentStatus(id,'active',step.desc));
+      await sleep(step.duration);
+      step.affects.forEach(id=>setAgentStatus(id,'done'));
+      if(step.id==='inventory_set'){ document.getElementById('out-sku').classList.add('ready'); document.getElementById('out-sku').innerHTML='<div class="big-icon">📦</div>SKU'; }
+      if(el) el.className='tl-item done'; if(tel) tel.textContent=getTime();
+    }
+
+    el?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    const pctDone=Math.round((i+1)/STEPS.length*100);
+    document.getElementById('progressFill').style.width=pctDone+'%';
+    document.getElementById('progressPct').textContent=pctDone+'%';
+    document.getElementById('progressLabel').textContent = i+1<STEPS.length ? `步骤 ${i+2}/${STEPS.length}：${STEPS[i+1].name}` : '全部完成';
+  }
+
+  // 完成
+  clearInterval(timerInterval);
+  const totalSec=Math.round((Date.now()-startTime)/1000);
+  document.getElementById('statusBadge').className='badge badge-done';
+  document.getElementById('statusBadge').textContent='✅ 已完成';
+  document.getElementById('curStep').textContent='全部完成';
+  document.getElementById('curStep').style.color='var(--green)';
+  document.getElementById('totalTime').textContent=`${Math.floor(totalSec/60)} 分 ${totalSec%60} 秒`;
+  const card=document.getElementById('completeCard');
+  card.classList.add('show');
+  card.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function startWorkflow() {
+  const btn = document.getElementById('startBtn');
+  btn.disabled = true; btn.textContent = '⏳ 启动中...';
+
+  // 隐藏启动面板，显示进度区域
+  setTimeout(() => {
+    document.getElementById('startPanel').style.display = 'none';
+    document.getElementById('progressArea').style.display = 'block';
+    document.getElementById('statsArea').style.display = 'grid';
+    document.getElementById('statusBadge').className = 'badge badge-running';
+    document.getElementById('statusBadge').textContent = '⏳ 进行中';
+
+    startTime = Date.now();
+    completedAgents = new Set();
+    timerInterval = setInterval(() => {
+      const sec = Math.round((Date.now()-startTime)/1000);
+      document.getElementById('elapsed').textContent = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+    }, 1000);
+
+    runWorkflow();
+  }, 600);
+}
+</script>
 </body>
 </html>

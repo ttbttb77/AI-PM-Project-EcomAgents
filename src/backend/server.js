@@ -38,6 +38,8 @@ function broadcast(event) {
   });
 }
 
+app.get('/', (req, res) => res.redirect('/pages/index.html'));
+
 app.get('/api/health', (req, res) => {
   res.json({
     code: 0,

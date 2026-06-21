@@ -24,6 +24,7 @@ __pycache__/
 .vscode/
 .vscode-test
 .idea/
+.qoder/
 *.swp
 *.swo
 
