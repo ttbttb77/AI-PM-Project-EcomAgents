@@ -38,7 +38,7 @@ function broadcast(event) {
   });
 }
 
-app.get('/', (req, res) => res.redirect('/pages/index.html'));
+app.get('/', (req, res) => res.redirect('/index.html'));
 
 app.get('/api/health', (req, res) => {
   res.json({
@@ -188,6 +188,6 @@ const PORT = process.env.PORT || 3000;
 initDb();
 server.listen(PORT, () => {
   console.log(`Ecommerce multi-agent demo server running at http://localhost:${PORT}`);
-  console.log(`Dashboard: http://localhost:${PORT}/pages/dashboard.html`);
+  console.log(`Dashboard: http://localhost:${PORT}/dashboard.html`);
   console.log('Demo note: agent output and sales data are simulated.');
 });
