@@ -4,7 +4,7 @@
 
 > 当前项目是 AI 产品原型与架构验证 Demo，不是线上生产系统。Agent 输出和经营数据均为模拟数据，用于验证流程、交互和指标框架。
 
-🔗 **在线 Demo**：[ecomagents-dp9engc836g8.edgeone.dev/chat.htm](https://ecomagents-dp9engc836g8.edgeone.dev/chat.htm)
+🔗 **在线 Demo**：[ecomagents.netlify.app](https://ecomagents.netlify.app)
 
 ![Dashboard](docs/assets/dashboard.png)
 
@@ -54,6 +54,7 @@
 - **3 条工作流**：新品上架、促销活动、日常运营
 - **可运行本地 Demo**：静态页面 + REST API + WebSocket
 - **工作流编排**：支持串行步骤与并行 Agent 任务
+- **人工审核节点（HITL）**：质量审核步骤支持人工通过 / 打回重做
 - **状态展示**：Agent 在线、忙碌、任务进度可视化
 - **数据看板**：基于 31 天模拟经营数据展示趋势和异常
 - **任务记录**：SQLite 记录 workflow execution 和 agent task
@@ -96,7 +97,7 @@ flowchart LR
 | Agent 状态管理 | `src/backend/services/agent-manager.js` |
 | 数据库 | `src/backend/db/database.js` |
 | 工作流配置 | `config/workflows.yaml` |
-| 前端页面 | `src/frontend/pages/` |
+| 前端页面 | `src/frontend/` |
 | 测试 | `tests/orchestrator.test.js` |
 
 ## 快速开始
@@ -112,13 +113,13 @@ npm.cmd start
 打开本地 Demo：
 
 ```text
-http://localhost:3000/pages/dashboard.html
+http://localhost:3000/dashboard.html
 ```
 
-或直接访问在线 Demo（无需本地运行）：
+或直接访问在线 Demo（无需本地运行，静态页面，API 功能不可用）：
 
 ```text
-https://ecomagents-dp9engc836g8.edgeone.dev/chat.htm
+https://ecomagents.netlify.app
 ```
 
 运行测试：
